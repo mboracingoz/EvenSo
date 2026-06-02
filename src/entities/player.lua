@@ -10,6 +10,7 @@ function Player.new()
     self.height = 32
     self.speed = 200
     self.hp = 5
+    self.maxHp = 5
     self.alive = true
 
     self.attackRange = 60

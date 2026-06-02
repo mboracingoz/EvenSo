@@ -2,13 +2,15 @@ local Player = require("src/entities/player")
 local Enemy = require("src/entities/enemy")
 local Base = require("src/entities/base")
 local Coin = require("src/entities/coin")
+local Hud = require("src/ui/hud")
+
 
 local player
 local enemies = {}
 local coins = {}
 local base 
 local totalCoins = 0
-
+local hud
 
 local function checkCollision(ax, ay, aw, ah, bx, by, bw, bh)
     return ax < bx + bw and
@@ -21,6 +23,7 @@ end
 function love.load()
     base = Base.new()
     player = Player.new()
+    hud = Hud.new()
 
     for i = 1,3 do
         table.insert(enemies, Enemy.new())
@@ -90,9 +93,7 @@ function love.draw()
         enemy:draw()
     end
 
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Player HP: "..math.floor(player.hp), 20, 20)
-    love.graphics.print("Base HP: "..math.floor(base.hp), 20, 40)
+    hud:draw(player, totalCoins)
 end
 
 
