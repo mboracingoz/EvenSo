@@ -9,7 +9,8 @@ function Player.new()
     self.width = 32
     self.height = 32
     self.speed = 200
-
+    self.hp = 5
+    self.alive = true
 
     self.attackRange = 60
     self.attackDamage = 1
@@ -20,6 +21,12 @@ function Player.new()
     return self
 end
 
+function Player:takeDamage(amount)
+    self.hp = math.max(0, self.hp - amount)
+    if self.hp <= 0 then
+        self.alive = false
+    end
+end
 
 function Player:update(dt)
     if love.keyboard.isDown("w") then self.y = self.y - self.speed * dt end

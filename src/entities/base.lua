@@ -16,7 +16,7 @@ end
 
 
 function Base:takeDamage(amount)
-    self.hp = self.hp - amount
+    self.hp = math.max(0, self.hp - amount)
     if self.hp <= 0 then
         self.alive = false
     end
