@@ -140,6 +140,17 @@ function love.draw()
 end
 
 function love.keypressed(key)
+    if key == "lshift" then
+        local moveX = 0
+        local moveY = 0
+        if love.keyboard.isDown("w") then moveY = -1 end
+        if love.keyboard.isDown("s") then moveY =  1 end
+        if love.keyboard.isDown("a") then moveX = -1 end
+        if love.keyboard.isDown("d") then moveX =  1 end
+        player:dash(moveX, moveY)
+    end
+
+
     if key == "r" and not player.alive then
         player = Player.new()
         enemies = {}

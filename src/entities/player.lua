@@ -29,6 +29,18 @@ function Player.new()
     self.knockbackX = 0
     self.knockbackY = 0
 
+    -- Dash
+    self.isDashing = false
+    self.dashTimer = 0
+    self.dashDuration = 0.15       
+    self.dashSpeed = 600           
+    self.dashCooldown = 0          
+    self.dashCooldownMax = 0.8     
+    self.dashDirX = 0              
+    self.dashDirY = 0
+
+    self.trails = {}
+
     return self
 end
 
@@ -53,8 +65,37 @@ function Player:update(dt)
         self.angle = math.atan2(moveY, moveX)
     end
 
-    self.x = self.x + moveX * self.speed * dt
-    self.y = self.y + moveY * self.speed * dt
+    if self.dashCooldown > 0 then
+        self.dashCooldown = self.dashCooldown - dt
+    end
+
+    if self.isDashing then
+        self.dashTimer = self.dashTimer - dt
+        self.x = self.x + self.dashDirX * self.dashSpeed * dt
+        self.y = self.y + self.dashDirY * self.dashSpeed * dt
+
+        table.insert(self.trails, {
+            x = self.x,
+            y = self.y,
+            alpha = 0.6,           
+            width = self.width,
+            height = self.height
+        })
+
+        if self.dashTimer <= 0 then
+            self.isDashing = false
+        end
+    else
+        self.x = self.x + moveX * self.speed * dt
+        self.y = self.y + moveY * self.speed * dt
+    end
+
+    for i = #self.trails, 1, -1 do
+        self.trails[i].alpha = self.trails[i].alpha - dt * 4
+        if self.trails[i].alpha <= 0 then
+            table.remove(self.trails, i)
+        end
+    end
 
     if self.flashTimer > 0 then
         self.flashTimer = self.flashTimer - dt
@@ -87,11 +128,33 @@ function Player:flash()
     self.flashTimer = self.flashDuration
 end
 
+function Player:dash(moveX, moveY)
+    if self.isDashing then return end
+    if self.dashCooldown > 0 then return end
+
+    if moveX ~= 0 or moveY ~= 0 then
+        local dist = math.sqrt(moveX*moveX + moveY*moveY)
+        self.dashDirX = moveX / dist
+        self.dashDirY = moveY / dist
+    else
+        self.dashDirX = math.cos(self.angle)
+        self.dashDirY = math.sin(self.angle)
+    end
+
+    self.isDashing = true
+    self.dashTimer = self.dashDuration
+    self.dashCooldown = self.dashCooldownMax
+end
 
 
 function Player:draw()
     local cx = self:getCenterX()
     local cy = self:getCenterY()
+
+    for i, trail in ipairs(self.trails) do
+        love.graphics.setColor(1, 0.85, 0.1, trail.alpha) 
+        love.graphics.rectangle("fill", trail.x, trail.y, trail.width, trail.height)
+    end
 
     love.graphics.push()
         love.graphics.translate(cx, cy)
