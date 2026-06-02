@@ -25,6 +25,10 @@ function Player.new()
 
     self.flashTimer = 0
     self.flashDuration = 0.15
+
+    self.knockbackX = 0
+    self.knockbackY = 0
+
     return self
 end
 
@@ -62,6 +66,11 @@ function Player:update(dt)
             self.isAttacking = false
         end
     end
+
+    self.x = self.x + self.knockbackX * dt
+    self.y = self.y + self.knockbackY * dt
+    self.knockbackX = self.knockbackX * (1 - 10 * dt)
+    self.knockbackY = self.knockbackY * (1 - 10 * dt)
 end
 
 function Player:attack()
@@ -77,6 +86,8 @@ function Player:getCenterY () return self.y + self.height / 2 end
 function Player:flash()
     self.flashTimer = self.flashDuration
 end
+
+
 
 function Player:draw()
     local cx = self:getCenterX()
@@ -116,5 +127,15 @@ function Player:draw()
 
     love.graphics.setColor(1, 1, 1)
 end
+
+function Player:applyKnockback(fromX, fromY)
+    local dx = self.x - fromX
+    local dy = self.y - fromY
+    local dist = math.sqrt(dx*dx + dy*dy)
+    if dist > 0 then
+        self.knockbackX = (dx/dist) * 300   -- Geri itme gücü
+        self.knockbackY = (dy/dist) * 300
+    end
+end 
 
 return Player

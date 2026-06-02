@@ -11,6 +11,16 @@ local coins = {}
 local base 
 local totalCoins = 0
 local hud
+local shakeTimer = 0
+local shakeDuration = 0
+local shakeMagnitude = 0
+
+
+local function startShake(duration, magnitude)
+    shakeTimer = duration
+    shakeDuration = duration
+    shakeMagnitude = magnitude
+end
 
 local function checkCollision(ax, ay, aw, ah, bx, by, bw, bh)
     return ax < bx + bw and
@@ -31,6 +41,10 @@ function love.load()
 end
 
 function love.update(dt)
+    if shakeTimer > 0 then
+        shakeTimer = shakeTimer - dt
+    end
+
     if not player.alive then return end
 
     player:update(dt)
@@ -44,6 +58,7 @@ function love.update(dt)
             if enemy:isInRange(px, py, player.attackRange) then
                 enemy:takeDamage(player.attackDamage)
                 enemy:flash()             
+                startShake(0.15,4)
                 enemy.hitThisAttack = true
 
                 if not enemy.alive then
@@ -62,6 +77,8 @@ function love.update(dt)
             if checkCollision(enemy.x, enemy.y, enemy.width, enemy.height,
                               player.x, player.y, player.width, player.height) then
                 player:takeDamage(0.05)
+                player:applyKnockback(enemy.x, enemy.y)
+                startShake(0.2, 0.7)
             end
         end
 
@@ -85,6 +102,16 @@ function love.update(dt)
 end
 
 function love.draw()
+    local ox, oy = 0, 0
+    if shakeTimer > 0 then
+        local progress = shakeTimer / shakeDuration
+        ox = love.math.random(-shakeMagnitude, shakeMagnitude) * progress
+        oy = love.math.random(-shakeMagnitude, shakeMagnitude) * progress
+    end
+
+    love.graphics.push()
+    love.graphics.translate(ox, oy)
+
     base:draw()
     player:draw()
 
@@ -95,6 +122,8 @@ function love.draw()
     for i, enemy in ipairs(enemies) do
         enemy:draw()
     end
+
+    love.graphics.pop()
 
     hud:draw(player, totalCoins)
 
