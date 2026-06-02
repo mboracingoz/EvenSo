@@ -18,13 +18,19 @@ function love.update(dt)
     for i, enemy in ipairs(enemies) do
         enemy:update(dt, player)
 
-         if player.isAttacking and enemy.alive then
+         if player.isAttacking and enemy.alive and not enemy.hitThisAttack then
             local px = player:getCenterX()
             local py = player:getCenterY()
             if enemy:isInRange(px, py, player.attackRange) then
                 enemy:takeDamage(player. attackDamage)
+                enemy.hitThisAttack = true
             end
         end
+
+        if not player.isAttacking then
+            enemy.hitThisAttack = false
+        end
+
     end
 end
 

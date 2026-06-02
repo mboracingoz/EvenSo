@@ -9,6 +9,7 @@ function Enemy.new()
     self.speed = 100
     self.hp = 3
     self.alive = true
+    self.hitThisAttack = false
 
     --spawn
     local side = love.math.random(1, 4)
