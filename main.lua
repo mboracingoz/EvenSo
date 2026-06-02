@@ -1,8 +1,10 @@
 local Player = require("src/entities/player")
 local Enemy = require("src/entities/enemy")
+local Base = require("src/entities/base")
 
 local player
 local enemies = {}
+local base 
 
 function love.load()
     player = Player.new()
@@ -14,7 +16,8 @@ end
 
 function love.update(dt)
     player:update(dt)
-
+    base = Base.new()
+    
     for i, enemy in ipairs(enemies) do
         enemy:update(dt, player)
 
@@ -36,6 +39,7 @@ end
 
 
 function love.draw()
+    base:draw()
     player:draw()
 
     for i, enemy in ipairs(enemies) do
