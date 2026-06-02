@@ -1,10 +1,13 @@
 local Player = require("src/entities/player")
 local Enemy = require("src/entities/enemy")
 local Base = require("src/entities/base")
+local Coin = require("src/entities/coin")
 
 local player
 local enemies = {}
+local coins = {}
 local base 
+local totalCoins = 0
 
 
 local function checkCollision(ax, ay, aw, ah, bx, by, bw, bh)
@@ -16,6 +19,7 @@ end
 
 
 function love.load()
+    base = Base.new()
     player = Player.new()
 
     for i = 1,3 do
@@ -25,7 +29,6 @@ end
 
 function love.update(dt)
     player:update(dt)
-    base = Base.new()
 
     for i, enemy in ipairs(enemies) do
         enemy:update(dt, player)
@@ -36,13 +39,19 @@ function love.update(dt)
             if enemy:isInRange(px, py, player.attackRange) then
                 enemy:takeDamage(player.attackDamage)
                 enemy.hitThisAttack = true
+
+                if not enemy.alive then
+                    local cx = enemy.x + enemy.width / 2
+                    local cy = enemy.y + enemy.height / 2
+                    table.insert(coins, Coin.new(cx, cy))
+                end
             end
         end
 
         if not player.isAttacking then
             enemy.hitThisAttack = false
         end
-
+        
         if enemy.alive and player.alive then
             if checkCollision(enemy.x, enemy.y, enemy.width, enemy.height,
                               player.x, player.y, player.width, player.height) then
@@ -57,12 +66,25 @@ function love.update(dt)
             end
         end
     end
+
+    for i, coin in ipairs(coins) do
+        if not coin.collected then
+            if checkCollision(player.x, player.y, player.width, player.height, coin.x, coin.y, coin.width, coin.height) then
+                coin.collected = true
+                totalCoins = totalCoins + 1 
+            end
+        end
+    end
 end
 
 
 function love.draw()
     base:draw()
     player:draw()
+
+    for i, coin in ipairs(coins) do
+        coin:draw()
+    end
 
     for i, enemy in ipairs(enemies) do
         enemy:draw()
