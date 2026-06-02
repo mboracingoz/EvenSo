@@ -31,6 +31,8 @@ function love.load()
 end
 
 function love.update(dt)
+    if not player.alive then return end
+
     player:update(dt)
 
     for i, enemy in ipairs(enemies) do
@@ -54,32 +56,32 @@ function love.update(dt)
         if not player.isAttacking then
             enemy.hitThisAttack = false
         end
-        
+
         if enemy.alive and player.alive then
             if checkCollision(enemy.x, enemy.y, enemy.width, enemy.height,
                               player.x, player.y, player.width, player.height) then
-                player:takeDamage(0.05)   
+                player:takeDamage(0.05)
             end
         end
 
         if enemy.alive and base.alive then
             if checkCollision(enemy.x, enemy.y, enemy.width, enemy.height,
                               base.x, base.y, base.width, base.height) then
-                base:takeDamage(0.02)      
+                base:takeDamage(0.02)
             end
         end
     end
 
     for i, coin in ipairs(coins) do
         if not coin.collected then
-            if checkCollision(player.x, player.y, player.width, player.height, coin.x, coin.y, coin.width, coin.height) then
+            if checkCollision(player.x, player.y, player.width, player.height,
+                              coin.x, coin.y, coin.width, coin.height) then
                 coin.collected = true
-                totalCoins = totalCoins + 1 
+                totalCoins = totalCoins + 1
             end
         end
     end
 end
-
 
 function love.draw()
     base:draw()
@@ -94,6 +96,31 @@ function love.draw()
     end
 
     hud:draw(player, totalCoins)
+
+    if not player.alive then
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle("fill", 0, 0, 1280, 720)
+
+        love.graphics.setColor(1, 0.2, 0.2)
+        love.graphics.print("YOUR DIE!", 580, 320)
+
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("Please press the button R - Try Again", 500, 370)
+    end
+end
+
+function love.keypressed(key)
+    if key == "r" and not player.alive then
+        player = Player.new()
+        enemies = {}
+        coins = {}
+        totalCoins = 0
+        base = Base.new()
+
+        for i = 1, 3 do
+            table.insert(enemies, Enemy.new())
+        end
+    end
 end
 
 
