@@ -21,7 +21,7 @@ function Player.new()
     self.attackDamage = 1
     self.isAttacking = false
     self.attackTimer = 0
-    self.attackDuration = 0.2
+    self.attackDuration = 0.35
 
     return self
 end
@@ -75,15 +75,26 @@ function Player:draw()
         love.graphics.translate(cx, cy)
         love.graphics.rotate(self.angle)
 
+        local swordAngle = 0
+        if self.isAttacking then
+            local progress = 1 - (self.attackTimer / self.attackDuration)
+            local eased = progress * progress * (3 - 2 * progress)
+            swordAngle = math.rad(-75 + progress * 150) 
+        end
+
+        love.graphics.push()
+            love.graphics.rotate(swordAngle)
+
+            if self.isAttacking then
+                love.graphics.setColor(1, 1, 0.5)
+            else
+                love.graphics.setColor(0.8, 0.8, 0.8)
+            end
+            love.graphics.rectangle("fill", self.width/2, -3, 24, 6)
+        love.graphics.pop()
+
         love.graphics.setColor(0.2, 0.6, 1)
         love.graphics.rectangle("fill", -self.width/2, -self.height/2, self.width, self.height)
-
-        if self.isAttacking then
-            love.graphics.setColor(1, 1, 0.5)
-        else
-            love.graphics.setColor(0.8, 0.8, 0.8)
-        end
-        love.graphics.rectangle("fill", self.width/2, -4, 20, 8)
 
     love.graphics.pop()
 
