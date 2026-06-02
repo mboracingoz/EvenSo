@@ -13,6 +13,10 @@ function Player.new()
     self.maxHp = 5
     self.alive = true
 
+    self.angle = 0
+    self.dirX = 0
+    self.dirY = 1
+
     self.attackRange = 60
     self.attackDamage = 1
     self.isAttacking = false
@@ -30,10 +34,20 @@ function Player:takeDamage(amount)
 end
 
 function Player:update(dt)
-    if love.keyboard.isDown("w") then self.y = self.y - self.speed * dt end
-    if love.keyboard.isDown("s") then self.y = self.y + self.speed * dt end
-    if love.keyboard.isDown("a") then self.x = self.x - self.speed * dt end
-    if love.keyboard.isDown("d") then self.x = self.x + self.speed * dt end
+    local moveX = 0
+    local moveY = 0
+
+    if love.keyboard.isDown("w") then moveY = -1 end
+    if love.keyboard.isDown("s") then moveY =  1 end
+    if love.keyboard.isDown("a") then moveX = -1 end
+    if love.keyboard.isDown("d") then moveX =  1 end
+
+    if moveX ~= 0 or moveY ~= 0 then
+        self.angle = math.atan2(moveY, moveX)
+    end
+
+    self.x = self.x + moveX * self.speed * dt
+    self.y = self.y + moveY * self.speed * dt
 
     if self.isAttacking then
         self.attackTimer = self.attackTimer - dt
@@ -54,17 +68,26 @@ function Player:getCenterX () return self.x + self.width / 2 end
 function Player:getCenterY () return self.y + self.height / 2 end
 
 function Player:draw()
-    love.graphics.setColor(0.2, 0.6, 1)
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+    local cx = self:getCenterX()
+    local cy = self:getCenterY()
 
-    if self.isAttacking then
-        love.graphics.setColor(1,1,0,0.3)
-        love.graphics.circle("fill", self:getCenterX(), self:getCenterY(), self.attackRange)
-    end
+    love.graphics.push()
+        love.graphics.translate(cx, cy)
+        love.graphics.rotate(self.angle)
 
-    love.graphics.setColor(1,1,1)
+        love.graphics.setColor(0.2, 0.6, 1)
+        love.graphics.rectangle("fill", -self.width/2, -self.height/2, self.width, self.height)
 
-    
+        if self.isAttacking then
+            love.graphics.setColor(1, 1, 0.5)
+        else
+            love.graphics.setColor(0.8, 0.8, 0.8)
+        end
+        love.graphics.rectangle("fill", self.width/2, -4, 20, 8)
+
+    love.graphics.pop()
+
+    love.graphics.setColor(1, 1, 1)
 end
 
 return Player
