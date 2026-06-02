@@ -43,6 +43,7 @@ function love.update(dt)
             local py = player:getCenterY()
             if enemy:isInRange(px, py, player.attackRange) then
                 enemy:takeDamage(player.attackDamage)
+                enemy:flash()             
                 enemy.hitThisAttack = true
 
                 if not enemy.alive then

@@ -23,11 +23,14 @@ function Player.new()
     self.attackTimer = 0
     self.attackDuration = 0.35
 
+    self.flashTimer = 0
+    self.flashDuration = 0.15
     return self
 end
 
 function Player:takeDamage(amount)
     self.hp = math.max(0, self.hp - amount)
+    self:flash()
     if self.hp <= 0 then
         self.alive = false
     end
@@ -49,6 +52,10 @@ function Player:update(dt)
     self.x = self.x + moveX * self.speed * dt
     self.y = self.y + moveY * self.speed * dt
 
+    if self.flashTimer > 0 then
+        self.flashTimer = self.flashTimer - dt
+    end
+
     if self.isAttacking then
         self.attackTimer = self.attackTimer - dt
         if self.attackTimer <= 0 then
@@ -66,6 +73,10 @@ end
 
 function Player:getCenterX () return self.x + self.width / 2 end
 function Player:getCenterY () return self.y + self.height / 2 end
+
+function Player:flash()
+    self.flashTimer = self.flashDuration
+end
 
 function Player:draw()
     local cx = self:getCenterX()
@@ -93,7 +104,12 @@ function Player:draw()
             love.graphics.rectangle("fill", self.width/2, -3, 24, 6)
         love.graphics.pop()
 
-        love.graphics.setColor(0.2, 0.6, 1)
+
+        if self.flashTimer > 0 then
+            love.graphics.setColor(1, 0.2, 0.2)    -- Kırmızı flash
+        else
+            love.graphics.setColor(0.2, 0.6, 1)    -- Normal mavi
+        end
         love.graphics.rectangle("fill", -self.width/2, -self.height/2, self.width, self.height)
 
     love.graphics.pop()
